@@ -273,8 +273,8 @@ var docActivo = 'contrato';
 // ═══════════════════════════════════════════════════
 var DESPACHO          = "Arq. Alvaro Chapa Villarreal";
 var TELEFONO          = "81 2289 4100";
-var CEDULA            = "Cédula Prof. 2531610";  // ← Pon aquí tu número de cédula
-var DOMICILIO_DESPACHO= "Monterrey, Nuevo León, México"; // ← Tu dirección de despacho
+var CEDULA            = "Cédula Prof. 0000000";  // ← Pon aquí tu número de cédula
+var DOMICILIO_DESPACHO= "Escobedo, Nuevo León, México"; // ← Tu dirección de despacho
 // ═══════════════════════════════════════════════════
 
 function fmt(n){
@@ -502,14 +502,14 @@ function generarPropuesta(){
   // ALCANCE
   doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
   doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
-  doc.text("ALCANCE Y ENTREGABLES",mg+3,y+4.5); y+=7;
+  doc.text("ALCANCE Y ENTREGABLES",mg+3,y+4.5); y+=10;
   doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
   var entLines=doc.splitTextToSize(entregables||"A convenir entre las partes según requerimientos del proyecto.",cw-3);
   doc.text(entLines,mg,y); y+=entLines.length*4+5;
 
   if(exclusiones){
     doc.setFont("helvetica","bold"); doc.setTextColor(31,56,100);
-    doc.text("No incluye (exclusiones):",mg,y); y+=5;
+    doc.text("No incluye (exclusiones):",mg,y); y+=6;
     doc.setFont("helvetica","normal"); doc.setTextColor(100,100,100);
     var exLines=doc.splitTextToSize(exclusiones,cw-3);
     doc.text(exLines,mg,y); y+=exLines.length*4+5;
@@ -598,7 +598,7 @@ function generarActa(){
   // DESCRIPCION
   doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
   doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
-  doc.text("II. DESCRIPCIÓN DE LOS TRABAJOS ENTREGADOS",mg+3,y+4.5); y+=7;
+  doc.text("II. DESCRIPCIÓN DE LOS TRABAJOS ENTREGADOS",mg+3,y+4.5); y+=10;
   doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
   var trabLines=doc.splitTextToSize(trabajos||"Obra ejecutada conforme al contrato de construcción suscrito entre las partes.",cw-3);
   doc.text(trabLines,mg,y); y+=trabLines.length*4+5;
@@ -607,7 +607,7 @@ function generarActa(){
   if(obs){
     doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
     doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
-    doc.text("III. OBSERVACIONES Y PENDIENTES",mg+3,y+4.5); y+=7;
+    doc.text("III. OBSERVACIONES Y PENDIENTES",mg+3,y+4.5); y+=10;
     doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
     var obsLines=doc.splitTextToSize(obs,cw-3);
     doc.text(obsLines,mg,y); y+=obsLines.length*4+5;
@@ -679,7 +679,7 @@ function generarExtra(){
   // DESCRIPCION
   doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
   doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
-  doc.text("II. DESCRIPCIÓN DEL TRABAJO ADICIONAL",mg+3,y+4.5); y+=7;
+  doc.text("II. DESCRIPCIÓN DEL TRABAJO ADICIONAL",mg+3,y+4.5); y+=10;
   doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
   var descLines=doc.splitTextToSize(desc||"Trabajo adicional solicitado por el cliente.",cw-3);
   doc.text(descLines,mg,y); y+=descLines.length*4+5;
