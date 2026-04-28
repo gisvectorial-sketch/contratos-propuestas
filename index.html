@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Contratos y Propuestas — Arq. Alvaro Chapa Villarreal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#F5F4F0;--surface:#FFF;--border:#E2E0D8;--border2:#CECCC2;
+  --text1:#1A1916;--text2:#5A5850;--text3:#9A9890;
+  --accent:#1F3864;--accent2:#2E5599;--accent3:#4A78CC;
+  --success:#2A7A4B;--suc-bg:#EAF4EE;
+  --warn:#854F0B;--warn-bg:#FDF3E3;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 2px 12px rgba(0,0,0,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text1);min-height:100vh;padding-bottom:48px;}
+
+.app-header{background:var(--accent);padding:18px 20px 14px;position:sticky;top:0;z-index:100;}
+.header-inner{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+.avatar{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:16px;color:#fff;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.22);}
+.header-name{font-size:14px;font-weight:600;color:#fff;line-height:1.2;}
+.header-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;}
+.header-badge{margin-left:auto;font-size:10px;font-weight:500;background:rgba(255,255,255,0.14);color:rgba(255,255,255,0.85);padding:3px 10px;border-radius:20px;white-space:nowrap;}
+
+.main{max-width:640px;margin:0 auto;padding:14px 13px 0;}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:11px;box-shadow:var(--shadow);overflow:hidden;}
+.card-head{padding:11px 15px 0;font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);}
+.card-body{padding:11px 15px 15px;}
+
+.doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.doc-btn{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px;cursor:pointer;text-align:center;transition:all 0.15s;}
+.doc-btn:active{opacity:0.8;}
+.doc-btn.active{border:2px solid var(--accent2);background:var(--surface);}
+.doc-icon{font-size:24px;margin-bottom:6px;}
+.doc-label{font-size:12px;font-weight:600;color:var(--text1);margin-bottom:2px;}
+.doc-sub{font-size:10px;color:var(--text3);}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.field{margin-bottom:11px;}.field:last-child{margin-bottom:0;}
+label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:500;}
+input[type=text],input[type=number],select,textarea{width:100%;padding:9px 11px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text1);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent3);}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A5850' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px;}
+textarea{resize:vertical;min-height:72px;}
+
+.sec-form{display:none;}.sec-form.active{display:block;}
+.divider{height:1px;background:var(--border);margin:12px 0;}
+
+.btn-pdf{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;margin-top:4px;box-shadow:0 4px 14px rgba(31,56,100,0.22);}
+.btn-pdf:active{opacity:0.85;}
+.preview-badge{display:inline-block;font-size:10px;padding:3px 10px;border-radius:var(--radius-sm);font-weight:500;margin-left:6px;}
+.badge-contrato{background:#EEF3FB;color:var(--accent2);}
+.badge-propuesta{background:var(--suc-bg);color:var(--success);}
+.badge-acta{background:var(--warn-bg);color:var(--warn);}
+.badge-extra{background:#F0EBF8;color:#6B3FA0;}
+.note{font-size:11px;color:var(--text3);line-height:1.6;margin-top:8px;}
+.app-footer{text-align:center;font-size:11px;color:var(--text3);margin-top:18px;padding:0 13px;}
+
+@media(max-width:380px){.row2{grid-template-columns:1fr;}.doc-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="avatar">AC</div>
+    <div>
+      <div class="header-name">Arq. Alvaro Chapa Villarreal</div>
+      <div class="header-sub">📱 WhatsApp 81 2289 4100</div>
+    </div>
+    <div class="header-badge">NL 2025</div>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- SELECTOR DE DOCUMENTO -->
+<div class="card">
+  <div class="card-head">Tipo de documento</div>
+  <div class="card-body">
+    <div class="doc-grid">
+      <div class="doc-btn active" onclick="selDoc('contrato',this)">
+        <div class="doc-icon">📋</div>
+        <div class="doc-label">Contrato de obra</div>
+        <div class="doc-sub">Precio alzado / unitario</div>
+      </div>
+      <div class="doc-btn" onclick="selDoc('propuesta',this)">
+        <div class="doc-icon">💼</div>
+        <div class="doc-label">Propuesta de honorarios</div>
+        <div class="doc-sub">Servicios profesionales</div>
+      </div>
+      <div class="doc-btn" onclick="selDoc('acta',this)">
+        <div class="doc-icon">✅</div>
+        <div class="doc-label">Acta de entrega</div>
+        <div class="doc-sub">Recepción de obra</div>
+      </div>
+      <div class="doc-btn" onclick="selDoc('extra',this)">
+        <div class="doc-icon">➕</div>
+        <div class="doc-label">Orden de cambio</div>
+        <div class="doc-sub">Trabajos extra / adiciones</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATOS COMUNES -->
+<div class="card">
+  <div class="card-head">Datos del cliente y proyecto</div>
+  <div class="card-body">
+    <div class="field"><label>Nombre completo del cliente</label><input type="text" id="cliente" placeholder="Ej. Juan Pérez López"></div>
+    <div class="row2">
+      <div class="field"><label>Tipo de persona</label>
+        <select id="tipo-persona"><option>Persona física</option><option>Persona moral / empresa</option></select>
+      </div>
+      <div class="field"><label>Fecha del documento</label><input type="text" id="fecha-doc"></div>
+    </div>
+    <div class="field"><label>Domicilio del cliente</label><input type="text" id="dom-cliente" placeholder="Calle, número, colonia, municipio, NL"></div>
+    <div class="field"><label>Nombre / descripción del proyecto</label><input type="text" id="proyecto" placeholder="Ej. Casa habitación en Escobedo NL"></div>
+    <div class="field"><label>Domicilio de la obra</label><input type="text" id="dom-obra" placeholder="Dirección exacta de la obra"></div>
+    <div class="field"><label>Municipio</label>
+      <select id="municipio">
+        <option>Monterrey</option><option selected>Escobedo</option><option>García</option>
+        <option>San Pedro Garza García</option><option>San Nicolás de los Garza</option>
+        <option>Guadalupe</option><option>Apodaca</option><option>Juárez</option>
+        <option>Santa Catarina</option><option>Pesquería</option><option>Allende</option>
+        <option>Cadereyta Jiménez</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRATO DE OBRA -->
+<div class="card sec-form active" id="form-contrato">
+  <div class="card-head">Contrato de obra <span class="preview-badge badge-contrato">Contrato</span></div>
+  <div class="card-body">
+    <div class="row2">
+      <div class="field"><label>Monto total (MXN)</label><input type="number" id="c-monto" placeholder="850000"></div>
+      <div class="field"><label>Anticipo (%)</label><input type="number" id="c-anticipo" value="30" min="0" max="100"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Plazo de ejecución</label><input type="text" id="c-plazo" placeholder="120 días naturales"></div>
+      <div class="field"><label>Tipo de contrato</label>
+        <select id="c-tipo"><option>Precio alzado</option><option>Precios unitarios</option><option>Administración</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Alcance de los trabajos</label><textarea id="c-alcance" placeholder="Describe los trabajos a realizar: cimentación, estructura, albañilería, instalaciones, acabados..."></textarea></div>
+    <div class="row2">
+      <div class="field"><label>¿Incluye IVA?</label>
+        <select id="c-iva"><option>No incluye IVA</option><option>Incluye IVA (16%)</option></select>
+      </div>
+      <div class="field"><label>Pena convencional (%/semana)</label><input type="number" id="c-pena" value="1" min="0" max="10"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Forma de pago</label>
+        <select id="c-pago"><option>Estimaciones quincenales</option><option>Por etapas de obra</option><option>Mensual</option><option>Anticipo + finiquito</option></select>
+      </div>
+      <div class="field"><label>Garantía post-entrega</label>
+        <select id="c-garantia"><option>12 meses</option><option>6 meses</option><option>24 meses</option><option>Sin garantía</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Materiales incluidos en el contrato</label>
+      <select id="c-materiales"><option>Materiales y mano de obra</option><option>Solo mano de obra</option><option>Solo materiales</option></select>
+    </div>
+  </div>
+</div>
+
+<!-- PROPUESTA DE HONORARIOS -->
+<div class="card sec-form" id="form-propuesta">
+  <div class="card-head">Propuesta de honorarios <span class="preview-badge badge-propuesta">Propuesta</span></div>
+  <div class="card-body">
+    <div class="row2">
+      <div class="field"><label>Tipo de servicio</label>
+        <select id="p-servicio">
+          <option>Proyecto arquitectónico</option><option>Proyecto ejecutivo completo</option>
+          <option>Dirección de obra</option><option>Proyecto + Dirección de obra</option>
+          <option>Supervisión de obra</option><option>Consultoría arquitectónica</option>
+        </select>
+      </div>
+      <div class="field"><label>Superficie del proyecto (m²)</label><input type="number" id="p-sup" placeholder="150"></div>
+    </div>
+    <div class="field"><label>Entregables incluidos</label><textarea id="p-entregables" placeholder="Ej. Planos arquitectónicos, memoria descriptiva, especificaciones, renders 3D, planos de instalaciones..."></textarea></div>
+    <div class="row2">
+      <div class="field"><label>Honorarios totales (MXN)</label><input type="number" id="p-honorarios" placeholder="85000"></div>
+      <div class="field"><label>¿Incluye IVA?</label>
+        <select id="p-iva"><option>No incluye IVA</option><option>Incluye IVA (16%)</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Forma de pago</label>
+        <select id="p-pago"><option>3 exhibiciones iguales</option><option>Anticipo 50% + finiquito</option><option>Por etapas del proyecto</option><option>Mensual</option></select>
+      </div>
+      <div class="field"><label>Tiempo de elaboración</label><input type="text" id="p-tiempo" placeholder="Ej. 30 días hábiles"></div>
+    </div>
+    <div class="field"><label>Vigencia de la propuesta</label><input type="text" id="p-vigencia" placeholder="Ej. 30 días naturales a partir de la fecha"></div>
+    <div class="field"><label>Exclusiones (no incluye)</label><textarea id="p-exclusiones" placeholder="Ej. Estudios de suelo, trámites, permisos, maqueta física..."></textarea></div>
+  </div>
+</div>
+
+<!-- ACTA DE ENTREGA -->
+<div class="card sec-form" id="form-acta">
+  <div class="card-head">Acta de entrega <span class="preview-badge badge-acta">Acta</span></div>
+  <div class="card-body">
+    <div class="row2">
+      <div class="field"><label>Fecha de entrega</label><input type="text" id="a-fecha"></div>
+      <div class="field"><label>Estado de la obra</label>
+        <select id="a-estado"><option>Terminada al 100%</option><option>Terminada con observaciones menores</option><option>Entrega parcial</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Descripción de los trabajos entregados</label><textarea id="a-trabajos" placeholder="Descripción general de los trabajos que se entregan..."></textarea></div>
+    <div class="field"><label>Observaciones y pendientes</label><textarea id="a-obs" placeholder="Si aplica, lista los pendientes menores o condiciones especiales de entrega..."></textarea></div>
+    <div class="row2">
+      <div class="field"><label>Monto total de la obra (MXN)</label><input type="number" id="a-monto" placeholder="850000"></div>
+      <div class="field"><label>Saldo por liquidar (MXN)</label><input type="number" id="a-saldo" value="0"></div>
+    </div>
+    <div class="field"><label>Garantía ofrecida</label>
+      <select id="a-garantia"><option>12 meses por vicios ocultos</option><option>6 meses por vicios ocultos</option><option>24 meses por vicios ocultos</option><option>Sin garantía adicional</option></select>
+    </div>
+  </div>
+</div>
+
+<!-- ORDEN DE CAMBIO -->
+<div class="card sec-form" id="form-extra">
+  <div class="card-head">Orden de cambio / trabajo extra <span class="preview-badge badge-extra">Extra</span></div>
+  <div class="card-body">
+    <div class="row2">
+      <div class="field"><label>Número de orden</label><input type="text" id="e-num" placeholder="OC-001"></div>
+      <div class="field"><label>Fecha</label><input type="text" id="e-fecha"></div>
+    </div>
+    <div class="field"><label>Motivo del cambio</label>
+      <select id="e-motivo"><option>Solicitud del cliente</option><option>Modificación de proyecto</option><option>Condición imprevista en obra</option><option>Ajuste de especificaciones</option><option>Error u omisión en proyecto original</option></select>
+    </div>
+    <div class="field"><label>Descripción detallada del trabajo extra</label><textarea id="e-desc" placeholder="Describe con detalle el trabajo adicional, materiales y mano de obra involucrados..."></textarea></div>
+    <div class="row2">
+      <div class="field"><label>Costo adicional (MXN)</label><input type="number" id="e-costo" placeholder="25000"></div>
+      <div class="field"><label>Días adicionales de plazo</label><input type="number" id="e-dias" placeholder="10"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>¿Incluye IVA?</label>
+        <select id="e-iva"><option>No incluye IVA</option><option>Incluye IVA (16%)</option></select>
+      </div>
+      <div class="field"><label>Forma de pago</label>
+        <select id="e-pago"><option>Al inicio del trabajo extra</option><option>Al término del trabajo extra</option><option>50% inicio / 50% término</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Impacto en el programa de obra</label>
+      <select id="e-impacto"><option>No afecta la fecha de entrega</option><option>Extiende la fecha de entrega</option><option>Requiere reprogramación general</option></select>
+    </div>
+  </div>
+</div>
+
+<button class="btn-pdf" id="btn-generar">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="white" stroke-width="1.2" fill="none"/><path d="M10 2v4h4M5 9h6M5 11.5h4" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+  Generar documento PDF
+</button>
+
+<p class="note" style="text-align:center;">Documentos con carácter informativo. Se recomienda revisión legal antes de firmar.</p>
+
+<div class="app-footer">
+  Contratos y Propuestas · Arq. Alvaro Chapa Villarreal · NL 2025<br>
+  📱 WhatsApp 81 2289 4100
+</div>
+
+</main>
+
+<script>
+var docActivo = 'contrato';
+var DESPACHO = "Arq. Alvaro Chapa Villarreal";
+var TELEFONO = "81 2289 4100";
+var CEDULA   = "Cédula Prof. [Tu cédula]";
+var DOMICILIO_DESPACHO = "Escobedo, Nuevo León, México";
+
+function fmt(n){
+  if(!n||isNaN(n)) return "$0";
+  return "$"+parseFloat(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function selDoc(tipo, el){
+  docActivo = tipo;
+  document.querySelectorAll('.doc-btn').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  document.querySelectorAll('.sec-form').forEach(function(f){f.classList.remove('active');});
+  document.getElementById('form-'+tipo).classList.add('active');
+}
+
+// Fecha de hoy
+var hoy = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+document.getElementById('fecha-doc').value = hoy;
+document.getElementById('a-fecha').value   = hoy;
+document.getElementById('e-fecha').value   = hoy;
+
+function g(id){ return document.getElementById(id)?document.getElementById(id).value.trim():""; }
+
+// ── PDF helpers ──────────────────────────────────────────
+function encabezadoPDF(doc,W,mg,titulo,badge){
+  doc.setFillColor(31,56,100); doc.rect(0,0,W,32,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(17); doc.setFont("helvetica","bold");
+  doc.text(titulo,mg,14);
+  doc.setFontSize(9); doc.setFont("helvetica","normal");
+  doc.text(DESPACHO,mg,21); doc.text("WhatsApp: "+TELEFONO+"   "+CEDULA,mg,27);
+  doc.text(new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"}),W-mg,21,{align:"right"});
+  doc.text(DOMICILIO_DESPACHO,W-mg,27,{align:"right"});
+}
+
+function piePDF(doc,W,mg,pagina){
+  doc.setDrawColor(200,200,200); doc.line(mg,285,W-mg,285);
+  doc.setFontSize(7.5); doc.setTextColor(160,160,160); doc.setFont("helvetica","normal");
+  doc.text(DESPACHO+" · "+TELEFONO+" · NL 2025",mg,289);
+  doc.text("Página "+pagina,W-mg,289,{align:"right"});
+}
+
+function firmasPDF(doc,W,mg,y,cliente){
+  doc.setFontSize(9); doc.setFont("helvetica","bold"); doc.setTextColor(31,56,100);
+  doc.text("Firmas de conformidad",mg,y); y+=8;
+  var col1=mg, col2=mg+(cw/2)+10, cw2=(W-mg*2)/2-10;
+  doc.setDrawColor(180,180,180);
+  doc.line(col1,y+20,col1+cw2,y+20);
+  doc.line(col2,y+20,col2+cw2,y+20);
+  doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(80,80,80);
+  doc.text(DESPACHO,col1,y+24); doc.text("CONTRATISTA",col1,y+29);
+  doc.text(cliente||"CLIENTE",col2,y+24); doc.text("PROPIETARIO / CLIENTE",col2,y+29);
+  return y+36;
+}
+
+function filaTabla(doc,y,mg,cw,label,valor,shade){
+  if(shade){doc.setFillColor(248,250,252);doc.rect(mg,y,cw,7,"F");}
+  doc.setTextColor(80,80,80); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text(label,mg+3,y+5);
+  doc.setFont("helvetica","normal"); doc.setTextColor(30,30,30);
+  var lines=doc.splitTextToSize(valor||"—",(cw/2)-4);
+  doc.text(lines,mg+(cw/2),y+5);
+  return y+7;
+}
+
+var cw = 210-36;
+
+// ── CONTRATO ─────────────────────────────────────────────
+function generarContrato(){
+  var cliente=g("cliente"), domCli=g("dom-cliente"), proyecto=g("proyecto"),
+      domObra=g("dom-obra"), muni=g("municipio"), fecha=g("fecha-doc"),
+      monto=g("c-monto"), anticipo=g("c-anticipo"), plazo=g("c-plazo"),
+      tipo=g("c-tipo"), alcance=g("c-alcance"), iva=g("c-iva"),
+      pena=g("c-pena"), pago=g("c-pago"), garantia=g("c-garantia"),
+      materiales=g("c-materiales");
+  if(!cliente||!proyecto){alert("Completa al menos nombre del cliente y proyecto.");return;}
+
+  var montoNum = parseFloat(monto)||0;
+  var anticipoMonto = montoNum*(parseFloat(anticipo)||0)/100;
+  var ivaTexto = iva.includes("IVA (16%)") ? " más IVA del 16%" : " (no incluye IVA)";
+
+  var {jsPDF}=window.jspdf;
+  var doc=new jsPDF({unit:"mm",format:"a4"});
+  var W=210,mg=18,cw=W-mg*2;
+
+  encabezadoPDF(doc,W,mg,"CONTRATO DE OBRA","contrato");
+
+  var y=40;
+  doc.setFontSize(9); doc.setFont("helvetica","bold"); doc.setTextColor(31,56,100);
+  doc.text("CONTRATO DE OBRA A "+tipo.toUpperCase(),W/2,y,{align:"center"});
+  y+=6;
+  doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(80,80,80);
+  doc.text("Folio: CTR-"+Date.now().toString().slice(-6)+"   Fecha: "+fecha+"   Municipio: "+muni+", Nuevo León",W/2,y,{align:"center"});
+  y+=8;
+
+  // PARTES
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("I. PARTES CONTRATANTES",mg+3,y+4.5); y+=6;
+
+  var partes=[
+    ["CONTRATISTA",DESPACHO+" — "+CEDULA+"\n"+DOMICILIO_DESPACHO+", Tel: "+TELEFONO],
+    ["CLIENTE / PROPIETARIO",cliente+(g("tipo-persona")==="Persona moral / empresa"?" (Persona Moral)":"")+"\n"+(domCli||"Domicilio: no especificado")],
+  ];
+  partes.forEach(function(p,i){
+    doc.setFillColor(i%2===0?248:255,i%2===0?250:255,i%2===0?252:255);
+    doc.rect(mg,y,cw,12,"F");
+    doc.setTextColor(31,56,100); doc.setFontSize(7.5); doc.setFont("helvetica","bold");
+    doc.text(p[0],mg+3,y+4.5);
+    doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+    var lines=doc.splitTextToSize(p[1],cw-6);
+    doc.text(lines,mg+3,y+9);
+    y+=12;
+  });
+  y+=4;
+
+  // OBJETO
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("II. OBJETO DEL CONTRATO",mg+3,y+4.5); y+=6;
+  doc.setFillColor(252,252,252); doc.rect(mg,y,cw,24,"F");
+  doc.setTextColor(50,50,50); doc.setFontSize(8); doc.setFont("helvetica","normal");
+  var objLines=doc.splitTextToSize(
+    "El CONTRATISTA se compromete a ejecutar la obra denominada: "+proyecto+
+    ", ubicada en "+domObra+", municipio de "+muni+", Nuevo León, bajo la modalidad de "+tipo+
+    ". Los trabajos incluyen: "+(alcance||"los indicados en el proyecto arquitectónico y ejecutivo acordado entre las partes.")+
+    " El contrato comprende: "+materiales+".",
+    cw-6
+  );
+  doc.text(objLines,mg+3,y+5); y+=24+4;
+
+  // CONDICIONES ECONÓMICAS
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("III. MONTO Y CONDICIONES DE PAGO",mg+3,y+4.5); y+=6;
+  var econ=[
+    ["Monto total del contrato",fmt(montoNum)+ivaTexto,true],
+    ["Anticipo ("+anticipo+"%)",fmt(anticipoMonto)+" a la firma del contrato",false],
+    ["Forma de pago",pago,true],
+    ["Pena convencional por retraso del contratista",pena+"% del monto semanal sobre saldo insoluto",false],
+  ];
+  econ.forEach(function(e){
+    y=filaTabla(doc,y,mg,cw,e[0],e[1],e[2]);
+  });
+  y+=4;
+
+  // PLAZO Y GARANTIA
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("IV. PLAZO DE EJECUCIÓN Y GARANTÍA",mg+3,y+4.5); y+=6;
+  var plazos=[
+    ["Plazo de ejecución",plazo||"Por definir",true],
+    ["Garantía post-entrega",garantia+" por vicios ocultos",false],
+    ["Inicio de trabajos","A partir de la entrega del anticipo pactado",true],
+  ];
+  plazos.forEach(function(p){
+    y=filaTabla(doc,y,mg,cw,p[0],p[1],p[2]);
+  });
+  y+=4;
+
+  // CLAUSULAS
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("V. CLÁUSULAS GENERALES",mg+3,y+4.5); y+=7;
+  var clausulas=[
+    "El CLIENTE se obliga a entregar el anticipo pactado para dar inicio a los trabajos, así como a realizar los pagos en las fechas acordadas.",
+    "Cualquier modificación al proyecto deberá formalizarse mediante una Orden de Cambio firmada por ambas partes antes de ejecutarse.",
+    "El CONTRATISTA se obliga a ejecutar los trabajos conforme a las normas de construcción vigentes en el municipio de "+muni+".",
+    "Los materiales y equipos serán de primera calidad. El CONTRATISTA presentará muestras o fichas técnicas cuando el CLIENTE lo solicite.",
+    "En caso de controversia, las partes se someten a la jurisdicción de los tribunales competentes del municipio de "+muni+", Nuevo León.",
+  ];
+  doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+  clausulas.forEach(function(c,i){
+    var lines=doc.splitTextToSize((i+1)+". "+c,cw-3);
+    doc.text(lines,mg,y);
+    y+=lines.length*4+2;
+  });
+  y+=4;
+
+  // FIRMAS
+  if(y>240){doc.addPage();y=20;}
+  firmasPDF(doc,W,mg,y,cliente);
+  piePDF(doc,W,mg,1);
+  doc.save("Contrato_Obra_"+cliente.split(" ")[0]+"_"+new Date().toISOString().slice(0,10)+".pdf");
+}
+
+// ── PROPUESTA ────────────────────────────────────────────
+function generarPropuesta(){
+  var cliente=g("cliente"), domCli=g("dom-cliente"), proyecto=g("proyecto"),
+      domObra=g("dom-obra"), muni=g("municipio"), fecha=g("fecha-doc"),
+      servicio=g("p-servicio"), sup=g("p-sup"), entregables=g("p-entregables"),
+      honorarios=g("p-honorarios"), iva=g("p-iva"), pago=g("p-pago"),
+      tiempo=g("p-tiempo"), vigencia=g("p-vigencia"), exclusiones=g("p-exclusiones");
+  if(!cliente||!proyecto){alert("Completa al menos nombre del cliente y proyecto.");return;}
+
+  var montoNum=parseFloat(honorarios)||0;
+  var ivaTexto=iva.includes("IVA (16%)")?" más IVA del 16%":" (no incluye IVA)";
+  var {jsPDF}=window.jspdf;
+  var doc=new jsPDF({unit:"mm",format:"a4"});
+  var W=210,mg=18,cw=W-mg*2;
+
+  encabezadoPDF(doc,W,mg,"PROPUESTA DE HONORARIOS PROFESIONALES","propuesta");
+
+  var y=40;
+  doc.setFontSize(9); doc.setFont("helvetica","bold"); doc.setTextColor(31,56,100);
+  doc.text("PROPUESTA DE SERVICIOS PROFESIONALES",W/2,y,{align:"center"});
+  y+=6;
+  doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(80,80,80);
+  doc.text("Folio: PRP-"+Date.now().toString().slice(-6)+"   Fecha: "+fecha+"   Vigencia: "+vigencia,W/2,y,{align:"center"});
+  y+=9;
+
+  // CLIENTE Y PROYECTO
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("DATOS DEL PROYECTO",mg+3,y+4.5); y+=6;
+  var datos=[
+    ["Cliente",cliente,true],
+    ["Proyecto",proyecto,false],
+    ["Ubicación",(domObra||"Por definir")+", "+muni+", Nuevo León",true],
+    ["Superficie aproximada",sup?(sup+" m²"):"Por definir",false],
+    ["Servicio solicitado",servicio,true],
+  ];
+  datos.forEach(function(d){y=filaTabla(doc,y,mg,cw,d[0],d[1],d[2]);});
+  y+=5;
+
+  // ALCANCE
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("ALCANCE Y ENTREGABLES",mg+3,y+4.5); y+=7;
+  doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+  var entLines=doc.splitTextToSize(entregables||"A convenir entre las partes según requerimientos del proyecto.",cw-3);
+  doc.text(entLines,mg,y); y+=entLines.length*4+5;
+
+  if(exclusiones){
+    doc.setFont("helvetica","bold"); doc.setTextColor(31,56,100);
+    doc.text("No incluye (exclusiones):",mg,y); y+=5;
+    doc.setFont("helvetica","normal"); doc.setTextColor(100,100,100);
+    var exLines=doc.splitTextToSize(exclusiones,cw-3);
+    doc.text(exLines,mg,y); y+=exLines.length*4+5;
+  }
+
+  // HONORARIOS
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("HONORARIOS Y CONDICIONES",mg+3,y+4.5); y+=6;
+  var honor=[
+    ["Honorarios profesionales totales",fmt(montoNum)+ivaTexto,true],
+    ["Forma de pago",pago,false],
+    ["Tiempo de elaboración",tiempo||"Por convenir",true],
+    ["Vigencia de esta propuesta",vigencia||"30 días naturales",false],
+  ];
+  honor.forEach(function(h){y=filaTabla(doc,y,mg,cw,h[0],h[1],h[2]);});
+  y+=5;
+
+  // TOTAL destacado
+  doc.setFillColor(238,243,251); doc.roundedRect(mg,y,cw,16,3,3,"F");
+  doc.setTextColor(31,56,100); doc.setFontSize(9); doc.setFont("helvetica","bold");
+  doc.text("TOTAL PROPUESTA:",mg+6,y+7);
+  doc.setFontSize(14); doc.text(fmt(montoNum),mg+6,y+14);
+  doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(100,100,100);
+  doc.text(ivaTexto,W-mg-4,y+14,{align:"right"});
+  y+=22;
+
+  // CONDICIONES GENERALES
+  doc.setFontSize(8); doc.setFont("helvetica","bold"); doc.setTextColor(31,56,100);
+  doc.text("Condiciones generales:",mg,y); y+=5;
+  doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(80,80,80);
+  var conds=[
+    "Esta propuesta tiene validez por "+vigencia+" a partir de la fecha indicada.",
+    "Los honorarios no incluyen gastos de impresión de planos, viáticos ni trámites ante dependencias.",
+    "Cualquier trabajo adicional al alcance acordado será cotizado por separado.",
+    "El inicio de los servicios estará condicionado a la firma del contrato y pago del anticipo.",
+  ];
+  conds.forEach(function(c,i){
+    doc.text((i+1)+". "+c,mg,y);y+=5;
+  });
+  y+=4;
+
+  if(y>240){doc.addPage();y=20;}
+  firmasPDF(doc,W,mg,y,cliente);
+  piePDF(doc,W,mg,1);
+  doc.save("Propuesta_Honorarios_"+cliente.split(" ")[0]+"_"+new Date().toISOString().slice(0,10)+".pdf");
+}
+
+// ── ACTA DE ENTREGA ──────────────────────────────────────
+function generarActa(){
+  var cliente=g("cliente"), proyecto=g("proyecto"), domObra=g("dom-obra"),
+      muni=g("municipio"), fechaDoc=g("fecha-doc"), fechaEntrega=g("a-fecha"),
+      estado=g("a-estado"), trabajos=g("a-trabajos"), obs=g("a-obs"),
+      monto=g("a-monto"), saldo=g("a-saldo"), garantia=g("a-garantia");
+  if(!cliente||!proyecto){alert("Completa al menos nombre del cliente y proyecto.");return;}
+
+  var {jsPDF}=window.jspdf;
+  var doc=new jsPDF({unit:"mm",format:"a4"});
+  var W=210,mg=18,cw=W-mg*2;
+
+  encabezadoPDF(doc,W,mg,"ACTA DE ENTREGA-RECEPCIÓN DE OBRA","acta");
+
+  var y=40;
+  doc.setFontSize(9); doc.setFont("helvetica","bold"); doc.setTextColor(31,56,100);
+  doc.text("ACTA DE ENTREGA-RECEPCIÓN DE OBRA",W/2,y,{align:"center"});
+  y+=6;
+  doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(80,80,80);
+  doc.text("Folio: ACTA-"+Date.now().toString().slice(-6)+"   Fecha de elaboración: "+fechaDoc,W/2,y,{align:"center"});
+  y+=9;
+
+  // DATOS GENERALES
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("I. DATOS GENERALES",mg+3,y+4.5); y+=6;
+  var datos=[
+    ["Proyecto",proyecto,true],
+    ["Ubicación de la obra",(domObra||"Por definir")+", "+muni+", Nuevo León",false],
+    ["Propietario / Cliente",cliente,true],
+    ["Contratista / Director de obra",DESPACHO+" — "+CEDULA,false],
+    ["Fecha de entrega-recepción",fechaEntrega,true],
+    ["Estado de la obra al momento de entrega",estado,false],
+  ];
+  datos.forEach(function(d){y=filaTabla(doc,y,mg,cw,d[0],d[1],d[2]);});
+  y+=5;
+
+  // DESCRIPCION
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("II. DESCRIPCIÓN DE LOS TRABAJOS ENTREGADOS",mg+3,y+4.5); y+=7;
+  doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+  var trabLines=doc.splitTextToSize(trabajos||"Obra ejecutada conforme al contrato de construcción suscrito entre las partes.",cw-3);
+  doc.text(trabLines,mg,y); y+=trabLines.length*4+5;
+
+  // OBSERVACIONES
+  if(obs){
+    doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+    doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+    doc.text("III. OBSERVACIONES Y PENDIENTES",mg+3,y+4.5); y+=7;
+    doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+    var obsLines=doc.splitTextToSize(obs,cw-3);
+    doc.text(obsLines,mg,y); y+=obsLines.length*4+5;
+  }
+
+  // FINANZAS
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text((obs?"IV.":"III.")+" SITUACIÓN FINANCIERA",mg+3,y+4.5); y+=6;
+  var fin=[
+    ["Monto total del contrato de obra",fmt(monto),true],
+    ["Saldo pendiente de liquidar",fmt(saldo),false],
+    ["Garantía ofrecida por el contratista",garantia,true],
+  ];
+  fin.forEach(function(f){y=filaTabla(doc,y,mg,cw,f[0],f[1],f[2]);});
+  y+=5;
+
+  // DECLARACION
+  doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(70,70,70);
+  var declaracion="Ambas partes declaran que los trabajos descritos han sido revisados y verificados, y que la presente acta representa la entrega formal de la obra. A partir de la firma de este documento, corren los plazos de garantía estipulados. El propietario acepta la obra en las condiciones señaladas.";
+  var declLines=doc.splitTextToSize(declaracion,cw);
+  doc.text(declLines,mg,y); y+=declLines.length*4+8;
+
+  if(y>240){doc.addPage();y=20;}
+  firmasPDF(doc,W,mg,y,cliente);
+  piePDF(doc,W,mg,1);
+  doc.save("Acta_Entrega_"+cliente.split(" ")[0]+"_"+new Date().toISOString().slice(0,10)+".pdf");
+}
+
+// ── ORDEN DE CAMBIO ──────────────────────────────────────
+function generarExtra(){
+  var cliente=g("cliente"), proyecto=g("proyecto"), domObra=g("dom-obra"),
+      muni=g("municipio"), fechaDoc=g("fecha-doc"), num=g("e-num"),
+      fecha=g("e-fecha"), motivo=g("e-motivo"), desc=g("e-desc"),
+      costo=g("e-costo"), dias=g("e-dias"), iva=g("e-iva"),
+      pago=g("e-pago"), impacto=g("e-impacto");
+  if(!cliente||!proyecto){alert("Completa al menos nombre del cliente y proyecto.");return;}
+
+  var costoNum=parseFloat(costo)||0;
+  var ivaTexto=iva.includes("IVA (16%)")?" más IVA del 16%":" (no incluye IVA)";
+  var {jsPDF}=window.jspdf;
+  var doc=new jsPDF({unit:"mm",format:"a4"});
+  var W=210,mg=18,cw=W-mg*2;
+
+  encabezadoPDF(doc,W,mg,"ORDEN DE CAMBIO / TRABAJO EXTRA","extra");
+
+  var y=40;
+  doc.setFontSize(9); doc.setFont("helvetica","bold"); doc.setTextColor(31,56,100);
+  doc.text("ORDEN DE CAMBIO No. "+(num||"OC-001"),W/2,y,{align:"center"});
+  y+=6;
+  doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(80,80,80);
+  doc.text("Fecha de elaboración: "+fechaDoc+"   Fecha de ejecución: "+fecha,W/2,y,{align:"center"});
+  y+=9;
+
+  // DATOS
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("I. DATOS DEL PROYECTO Y LAS PARTES",mg+3,y+4.5); y+=6;
+  var datos=[
+    ["Proyecto",proyecto,true],
+    ["Ubicación",(domObra||"Por definir")+", "+muni+", Nuevo León",false],
+    ["Propietario / Cliente",cliente,true],
+    ["Contratista",DESPACHO+" — "+CEDULA,false],
+    ["Motivo de la orden de cambio",motivo,true],
+  ];
+  datos.forEach(function(d){y=filaTabla(doc,y,mg,cw,d[0],d[1],d[2]);});
+  y+=5;
+
+  // DESCRIPCION
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("II. DESCRIPCIÓN DEL TRABAJO ADICIONAL",mg+3,y+4.5); y+=7;
+  doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+  var descLines=doc.splitTextToSize(desc||"Trabajo adicional solicitado por el cliente.",cw-3);
+  doc.text(descLines,mg,y); y+=descLines.length*4+5;
+
+  // COSTO Y PLAZO
+  doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("III. COSTO ADICIONAL Y AJUSTE DE PLAZO",mg+3,y+4.5); y+=6;
+  var costos=[
+    ["Costo adicional por trabajo extra",fmt(costoNum)+ivaTexto,true],
+    ["Forma de pago",pago,false],
+    ["Días adicionales de plazo",dias?(dias+" días naturales"):"Sin modificación",true],
+    ["Impacto en programa de obra",impacto,false],
+  ];
+  costos.forEach(function(c){y=filaTabla(doc,y,mg,cw,c[0],c[1],c[2]);});
+  y+=5;
+
+  // TOTAL
+  doc.setFillColor(238,243,251); doc.roundedRect(mg,y,cw,16,3,3,"F");
+  doc.setTextColor(31,56,100); doc.setFontSize(9); doc.setFont("helvetica","bold");
+  doc.text("COSTO ADICIONAL:",mg+6,y+7);
+  doc.setFontSize(14); doc.text(fmt(costoNum),mg+6,y+14);
+  doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(100,100,100);
+  doc.text(ivaTexto,W-mg-4,y+14,{align:"right"});
+  y+=22;
+
+  // DECLARACION
+  doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(70,70,70);
+  var decl="Ambas partes aceptan que el trabajo descrito en esta Orden de Cambio no estaba incluido en el contrato original y que su ejecución requiere el ajuste económico y/o de plazo indicado. Esta orden no tendrá efecto hasta ser firmada por ambas partes.";
+  var declLines=doc.splitTextToSize(decl,cw);
+  doc.text(declLines,mg,y); y+=declLines.length*4+8;
+
+  if(y>240){doc.addPage();y=20;}
+  firmasPDF(doc,W,mg,y,cliente);
+  piePDF(doc,W,mg,1);
+  doc.save("Orden_Cambio_"+(num||"OC-001")+"_"+cliente.split(" ")[0]+"_"+new Date().toISOString().slice(0,10)+".pdf");
+}
+
+// BOTÓN PRINCIPAL
+document.getElementById("btn-generar").onclick=function(){
+  if(docActivo==="contrato")  generarContrato();
+  else if(docActivo==="propuesta") generarPropuesta();
+  else if(docActivo==="acta")      generarActa();
+  else if(docActivo==="extra")     generarExtra();
+};
+</script>
+</body>
+</html>
