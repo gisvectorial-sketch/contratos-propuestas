@@ -268,10 +268,14 @@ textarea{resize:vertical;min-height:72px;}
 
 <script>
 var docActivo = 'contrato';
-var DESPACHO = "Arq. Alvaro Chapa Villarreal";
-var TELEFONO = "81 2289 4100";
-var CEDULA   = "Cédula Prof. [Tu cédula]";
-var DOMICILIO_DESPACHO = "Escobedo, Nuevo León, México";
+// ═══════════════════════════════════════════════════
+// DATOS DEL DESPACHO — EDITA AQUÍ TUS DATOS
+// ═══════════════════════════════════════════════════
+var DESPACHO          = "Arq. Alvaro Chapa Villarreal";
+var TELEFONO          = "81 2289 4100";
+var CEDULA            = "Cédula Prof. 2531610";  // ← Pon aquí tu número de cédula
+var DOMICILIO_DESPACHO= "Monterrey, Nuevo León, México"; // ← Tu dirección de despacho
+// ═══════════════════════════════════════════════════
 
 function fmt(n){
   if(!n||isNaN(n)) return "$0";
@@ -433,7 +437,7 @@ function generarContrato(){
   // CLAUSULAS
   doc.setFillColor(31,56,100); doc.rect(mg,y,cw,6,"F");
   doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
-  doc.text("V. CLÁUSULAS GENERALES",mg+3,y+4.5); y+=7;
+  doc.text("V. CLÁUSULAS GENERALES",mg+3,y+4.5); y+=10;
   var clausulas=[
     "El CLIENTE se obliga a entregar el anticipo pactado para dar inicio a los trabajos, así como a realizar los pagos en las fechas acordadas.",
     "Cualquier modificación al proyecto deberá formalizarse mediante una Orden de Cambio firmada por ambas partes antes de ejecutarse.",
